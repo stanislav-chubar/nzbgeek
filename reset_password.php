@@ -62,23 +62,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             justify-content: space-between;
         }
         .navbar-logo img { height: 45px; }
-        .navbar-search {
-            display: flex; align-items: center; gap: 6px;
-        }
-        .navbar-search select {
-            background: #333; color: #fff; border: 1px solid #444;
-            padding: 6px 10px; font-size: 14px; border-radius: 2px;
-        }
-        .navbar-search input[type="text"] {
-            background: #333; color: #fff; border: 1px solid #444;
-            padding: 6px 12px; font-size: 14px; border-radius: 2px; width: 200px;
-        }
-        .navbar-search input::placeholder { color: #888; }
-        .navbar-search button {
-            background: #444; color: #fff; border: 1px solid #555;
-            padding: 6px 14px; font-size: 14px; cursor: pointer; border-radius: 2px;
-        }
-        .navbar-search button:hover { background: #555; }
 
         /* Secondary Navbar */
         .navbar-secondary {
@@ -90,15 +73,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             font-size: 15px;
         }
         .nav-left { display: flex; align-items: center; gap: 14px; }
-        .nav-username { color: #fff; font-weight: bold; font-size: 15px; }
-        .nav-icons { display: flex; gap: 12px; }
-        .nav-icons a { color: #fff; font-size: 16px; }
+        .nav-user-wrapper { position: relative; }
+        .nav-username {
+            color: #fff; font-weight: bold; font-size: 15px; cursor: pointer;
+        }
+        .nav-username .fa-caret-down { font-size: 11px; margin-left: 3px; }
+        .user-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            margin-top: 6px;
+            background: #1a1a1a;
+            border: 1px solid #444;
+            border-radius: 3px;
+            min-width: 160px;
+            z-index: 999;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        }
+        .user-dropdown.open { display: block; }
+        .user-dropdown a {
+            display: block;
+            padding: 10px 16px;
+            color: #ccc;
+            font-size: 14px;
+            font-weight: normal;
+            transition: background 0.15s;
+        }
+        .user-dropdown a:hover { background: #333; color: #fff; }
+        .user-dropdown a + a { border-top: 1px solid #333; }
+        .nav-icons { display: flex; gap: 12px; align-items: center; }
+        .nav-icons a { color: #fff; font-size: 16px; transition: color 0.2s; }
         .nav-icons a:hover { color: #cce; }
-        .nav-icons a.icon-mail { color: #ffcc00; }
-        .nav-icons a.icon-mail:hover { color: #ffe055; }
-        .nav-right { display: flex; gap: 18px; }
-        .nav-right a { color: #fff; font-size: 15px; }
+        .nav-right { display: flex; gap: 18px; align-items: center; }
+        .nav-right a { color: #fff; font-size: 15px; transition: color 0.2s; }
         .nav-right a:hover { color: #cce; }
+        .nav-right .fa-caret-down { font-size: 10px; margin-left: 2px; }
 
         .content {
             max-width: 500px;
@@ -182,31 +192,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="navbar-logo">
             <a href="dashboard.php"><img src="assets/nzbgeek.png" alt="<?= e(SITE_NAME) ?>"></a>
         </div>
-        <div class="navbar-search">
-            <select><option>all</option></select>
-            <input type="text" placeholder="basic search">
-            <button type="button">search</button>
-        </div>
     </div>
 
     <!-- Secondary Navbar -->
     <div class="navbar-secondary">
         <div class="nav-left">
-            <span class="nav-username"><?= e($current_user['username']) ?> <i class="fas fa-caret-down"></i></span>
+            <div class="nav-user-wrapper">
+                <span class="nav-username" onclick="document.querySelector('.user-dropdown').classList.toggle('open')">
+                    <?= e($current_user['username']) ?> <i class="fas fa-caret-down"></i>
+                </span>
+                <div class="user-dropdown">
+                    <a href="account.php"><i class="fas fa-user"></i>&nbsp; my account</a>
+                    <a href="logout.php"><i class="fas fa-power-off"></i>&nbsp; logout</a>
+                </div>
+            </div>
             <div class="nav-icons">
                 <a href="dashboard.php" title="Home"><i class="fas fa-home"></i></a>
-                <a href="#" title="Notifications"><i class="fas fa-bullhorn"></i></a>
-                <a href="#" title="Messages" class="icon-mail"><i class="fas fa-envelope"></i></a>
                 <a href="logout.php" title="Logout"><i class="fas fa-power-off"></i></a>
             </div>
         </div>
         <div class="nav-right">
-            <a href="#">movies <i class="fas fa-caret-down"></i></a>
-            <a href="#">tv <i class="fas fa-caret-down"></i></a>
-            <a href="#">games <i class="fas fa-caret-down"></i></a>
-            <a href="#">audio <i class="fas fa-caret-down"></i></a>
-            <a href="#">books <i class="fas fa-caret-down"></i></a>
-            <a href="#">pc <i class="fas fa-caret-down"></i></a>
+            <a href="#">Movies <i class="fas fa-caret-down"></i></a>
+            <a href="#">Tv <i class="fas fa-caret-down"></i></a>
+            <a href="#">Games <i class="fas fa-caret-down"></i></a>
+            <a href="#">Audio <i class="fas fa-caret-down"></i></a>
+            <a href="#">Books <i class="fas fa-caret-down"></i></a>
+            <a href="#">Pc <i class="fas fa-caret-down"></i></a>
         </div>
     </div>
 
@@ -236,5 +247,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 
+<script>
+document.addEventListener('click', function(e) {
+    var dd = document.querySelector('.user-dropdown');
+    if (dd && !e.target.closest('.nav-user-wrapper')) {
+        dd.classList.remove('open');
+    }
+});
+</script>
 </body>
 </html>

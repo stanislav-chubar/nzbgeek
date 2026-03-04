@@ -168,23 +168,6 @@ elseif ($current_user['status_name'] === 'expired') $status_color = '#ff4444';
             justify-content: space-between;
         }
         .navbar-logo img { height: 45px; }
-        .navbar-search {
-            display: flex; align-items: center; gap: 6px;
-        }
-        .navbar-search select {
-            background: #333; color: #fff; border: 1px solid #444;
-            padding: 6px 10px; font-size: 14px; border-radius: 2px;
-        }
-        .navbar-search input {
-            background: #333; color: #fff; border: 1px solid #444;
-            padding: 6px 12px; font-size: 14px; border-radius: 2px; width: 200px;
-        }
-        .navbar-search input::placeholder { color: #888; }
-        .navbar-search button {
-            background: #444; color: #fff; border: 1px solid #555;
-            padding: 6px 14px; font-size: 14px; cursor: pointer; border-radius: 2px;
-        }
-        .navbar-search button:hover { background: #555; }
 
         /* Secondary Navbar */
         .navbar-secondary {
@@ -196,29 +179,67 @@ elseif ($current_user['status_name'] === 'expired') $status_color = '#ff4444';
             font-size: 15px;
         }
         .nav-left { display: flex; align-items: center; gap: 14px; }
-        .nav-username { color: #fff; font-weight: bold; font-size: 15px; }
-        .nav-icons { display: flex; gap: 12px; }
-        .nav-icons a { color: #fff; font-size: 16px; }
+        .nav-user-wrapper { position: relative; }
+        .nav-username {
+            color: #fff; font-weight: bold; font-size: 15px; cursor: pointer;
+        }
+        .nav-username .fa-caret-down { font-size: 11px; margin-left: 3px; }
+        .user-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            margin-top: 6px;
+            background: #1a1a1a;
+            border: 1px solid #444;
+            border-radius: 3px;
+            min-width: 160px;
+            z-index: 999;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        }
+        .user-dropdown.open { display: block; }
+        .user-dropdown a {
+            display: block;
+            padding: 10px 16px;
+            color: #ccc;
+            font-size: 14px;
+            font-weight: normal;
+            transition: background 0.15s;
+        }
+        .user-dropdown a:hover { background: #333; color: #fff; }
+        .user-dropdown a + a { border-top: 1px solid #333; }
+        .nav-icons { display: flex; gap: 12px; align-items: center; }
+        .nav-icons a { color: #fff; font-size: 16px; transition: color 0.2s; }
         .nav-icons a:hover { color: #cce; }
-        .nav-icons a.icon-mail { color: #ffcc00; }
-        .nav-icons a.icon-mail:hover { color: #ffe055; }
-        .nav-right { display: flex; gap: 18px; }
-        .nav-right a { color: #fff; font-size: 15px; }
+        .nav-right { display: flex; gap: 18px; align-items: center; }
+        .nav-right a { color: #fff; font-size: 15px; transition: color 0.2s; }
         .nav-right a:hover { color: #cce; }
+        .nav-right .fa-caret-down { font-size: 10px; margin-left: 2px; }
 
-        /* Content */
-        .content {
-            max-width: 1000px;
-            margin: 24px auto;
-            padding: 0 20px;
+        /* Account Card */
+        .account-card {
+            max-width: 1100px;
+            margin: 30px auto;
+            background: #333;
+            border: 1px solid #555;
+            border-radius: 12px;
+            padding: 35px 40px 40px;
         }
 
-        /* Page Title */
-        .page-title {
-            color: #ff6600;
-            font-size: 16px;
+        /* Card Header with logo */
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+        .card-title img {
+            height: 55px;
+        }
+        .card-title h1 {
+            color: #ccc;
+            font-size: 32px;
             font-weight: bold;
-            margin-bottom: 20px;
         }
 
         /* Flash Messages */
@@ -239,35 +260,37 @@ elseif ($current_user['status_name'] === 'expired') $status_color = '#ff4444';
             color: #66ff88;
         }
 
-        /* Account Sections */
+        /* Section Headers */
         .section {
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
         .section-header {
-            background: #333;
-            border-left: 3px solid #ff6600;
-            padding: 6px 14px;
             color: #ff6600;
-            font-size: 15px;
+            font-size: 16px;
             font-weight: bold;
+            font-style: italic;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #ff6600;
             margin-bottom: 0;
         }
+
+        /* Section Table */
         .section-table {
             width: 100%;
             border-collapse: collapse;
         }
         .section-table tr {
-            border-bottom: 1px solid #333;
+            border-bottom: 1px solid #444;
         }
         .section-table td {
-            padding: 10px 14px;
-            font-size: 14px;
+            padding: 12px 14px;
+            font-size: 15px;
             vertical-align: middle;
         }
         .section-table .label {
             color: #ccc;
             font-weight: bold;
-            width: 130px;
+            width: 140px;
             white-space: nowrap;
         }
         .section-table .value {
@@ -275,23 +298,23 @@ elseif ($current_user['status_name'] === 'expired') $status_color = '#ff4444';
         }
         .section-table .action {
             text-align: right;
-            width: 160px;
+            width: 180px;
         }
         .section-table .action button,
         .section-table .action a {
-            background: #444;
-            border: 1px solid #555;
+            background: #555;
+            border: 1px solid #666;
             color: #ccc;
-            padding: 5px 14px;
-            font-size: 13px;
+            padding: 6px 20px;
+            font-size: 14px;
             cursor: pointer;
-            border-radius: 2px;
+            border-radius: 3px;
             display: inline-block;
             text-transform: lowercase;
         }
         .section-table .action button:hover,
         .section-table .action a:hover {
-            background: #555;
+            background: #666;
             color: #fff;
         }
         .status-text {
@@ -300,11 +323,12 @@ elseif ($current_user['status_name'] === 'expired') $status_color = '#ff4444';
         .countdown {
             color: #ff6600;
             font-weight: bold;
+            font-style: italic;
         }
 
         /* Modal-style forms */
         .modal-form {
-            background: #1e1e1e;
+            background: #2a2a2a;
             border: 1px solid #555;
             border-radius: 4px;
             padding: 25px 30px;
@@ -351,41 +375,32 @@ elseif ($current_user['status_name'] === 'expired') $status_color = '#ff4444';
 
         /* Close Account Confirmation */
         .close-account-box {
-            background: #1e1e1e;
-            border: 1px solid #ff4444;
-            border-radius: 4px;
-            padding: 30px;
-            margin-bottom: 20px;
             text-align: center;
-        }
-        .close-account-box h3 {
-            color: #ff6600;
-            font-size: 16px;
-            margin-bottom: 15px;
+            padding: 10px 0 20px;
         }
         .close-account-box .sorry {
-            color: #ff6600;
+            color: #fff;
             font-weight: bold;
-            margin-bottom: 12px;
+            font-size: 16px;
+            margin: 30px 0 16px;
         }
         .close-account-box p {
             color: #999;
-            font-size: 14px;
-            line-height: 1.8;
-            margin-bottom: 6px;
+            font-size: 15px;
+            line-height: 2;
         }
         .close-account-box button {
             background: transparent;
-            border: 1px solid #888;
+            border: 1px solid #ff6600;
             color: #fff;
             padding: 10px 40px;
             cursor: pointer;
             font-size: 15px;
             text-transform: lowercase;
             border-radius: 3px;
-            margin-top: 15px;
+            margin-top: 20px;
         }
-        .close-account-box button:hover { background: rgba(255,255,255,0.05); }
+        .close-account-box button:hover { background: rgba(255,102,0,0.1); }
         .close-account-box .cancel-link {
             display: block;
             margin-top: 12px;
@@ -401,37 +416,41 @@ elseif ($current_user['status_name'] === 'expired') $status_color = '#ff4444';
         <div class="navbar-logo">
             <a href="dashboard.php"><img src="assets/nzbgeek.png" alt="<?= e(SITE_NAME) ?>"></a>
         </div>
-        <div class="navbar-search">
-            <select><option>all</option></select>
-            <input type="text" placeholder="basic search">
-            <button type="button">search</button>
-        </div>
     </div>
 
     <!-- Secondary Navbar -->
     <div class="navbar-secondary">
         <div class="nav-left">
-            <span class="nav-username"><?= e($current_user['username']) ?> <i class="fas fa-caret-down"></i></span>
+            <div class="nav-user-wrapper">
+                <span class="nav-username" onclick="document.querySelector('.user-dropdown').classList.toggle('open')">
+                    <?= e($current_user['username']) ?> <i class="fas fa-caret-down"></i>
+                </span>
+                <div class="user-dropdown">
+                    <a href="account.php"><i class="fas fa-user"></i>&nbsp; my account</a>
+                    <a href="logout.php"><i class="fas fa-power-off"></i>&nbsp; logout</a>
+                </div>
+            </div>
             <div class="nav-icons">
                 <a href="dashboard.php" title="Home"><i class="fas fa-home"></i></a>
-                <a href="#" title="Notifications"><i class="fas fa-bullhorn"></i></a>
-                <a href="#" title="Messages" class="icon-mail"><i class="fas fa-envelope"></i></a>
                 <a href="logout.php" title="Logout"><i class="fas fa-power-off"></i></a>
             </div>
         </div>
         <div class="nav-right">
-            <a href="#">movies <i class="fas fa-caret-down"></i></a>
-            <a href="#">tv <i class="fas fa-caret-down"></i></a>
-            <a href="#">games <i class="fas fa-caret-down"></i></a>
-            <a href="#">audio <i class="fas fa-caret-down"></i></a>
-            <a href="#">books <i class="fas fa-caret-down"></i></a>
-            <a href="#">pc <i class="fas fa-caret-down"></i></a>
+            <a href="#">Movies <i class="fas fa-caret-down"></i></a>
+            <a href="#">Tv <i class="fas fa-caret-down"></i></a>
+            <a href="#">Games <i class="fas fa-caret-down"></i></a>
+            <a href="#">Audio <i class="fas fa-caret-down"></i></a>
+            <a href="#">Books <i class="fas fa-caret-down"></i></a>
+            <a href="#">Pc <i class="fas fa-caret-down"></i></a>
         </div>
     </div>
 
-    <!-- Content -->
-    <div class="content">
-        <p class="page-title">my account</p>
+    <!-- Account Card -->
+    <div class="account-card">
+        <div class="card-title">
+            <img src="assets/logo_2.png" alt="<?= e(SITE_NAME) ?>">
+            <h1>my account</h1>
+        </div>
 
         <?php if ($error): ?>
             <div class="flash flash-error"><?= e($error) ?></div>
@@ -442,134 +461,146 @@ elseif ($current_user['status_name'] === 'expired') $status_color = '#ff4444';
 
         <?php if ($show_close_account): ?>
             <!-- Close Account Confirmation -->
-            <div class="close-account-box">
-                <h3>my account - close account</h3>
-                <p class="sorry">We are sorry to see you go.</p>
-                <p>Closing your account requires additional verification by you,</p>
-                <p>an approval email will be sent to your registered email address.</p>
-                <p>Once approved all records are removed from our system.</p>
-                <form method="POST" action="account.php">
-                    <?= csrf_input() ?>
-                    <input type="hidden" name="action" value="request_close">
-                    <button type="submit">close my account</button>
-                </form>
-                <a href="account.php" class="cancel-link">cancel</a>
-            </div>
-        <?php endif; ?>
-
-        <?php if ($show_change_username): ?>
-            <div class="modal-form">
-                <h3>change username</h3>
-                <form method="POST" action="account.php">
-                    <?= csrf_input() ?>
-                    <input type="hidden" name="action" value="change_username">
-                    <input type="text" name="new_username" placeholder="new username" required
-                           value="<?= e($_POST['new_username'] ?? $current_user['username']) ?>">
-                    <button type="submit">save</button>
+            <div class="section">
+                <div class="section-header">my account - close account</div>
+                <div class="close-account-box">
+                    <p class="sorry">We are sorry to see you go.</p>
+                    <p>Closing your account requires additional verification by you,</p>
+                    <p>an approval email will be sent to your registered email address.</p>
+                    <p>Once approved all records are removed from our system.</p>
+                    <form method="POST" action="account.php">
+                        <?= csrf_input() ?>
+                        <input type="hidden" name="action" value="request_close">
+                        <button type="submit">close my account</button>
+                    </form>
                     <a href="account.php" class="cancel-link">cancel</a>
-                </form>
+                </div>
             </div>
-        <?php endif; ?>
+        <?php else: ?>
 
-        <?php if ($show_change_email): ?>
-            <div class="modal-form">
-                <h3>change email</h3>
-                <form method="POST" action="account.php">
-                    <?= csrf_input() ?>
-                    <input type="hidden" name="action" value="change_email">
-                    <input type="email" name="new_email" placeholder="new email address" required
-                           value="<?= e($_POST['new_email'] ?? '') ?>">
-                    <button type="submit">save</button>
-                    <a href="account.php" class="cancel-link">cancel</a>
-                </form>
+            <?php if ($show_change_username): ?>
+                <div class="modal-form">
+                    <h3>change username</h3>
+                    <form method="POST" action="account.php">
+                        <?= csrf_input() ?>
+                        <input type="hidden" name="action" value="change_username">
+                        <input type="text" name="new_username" placeholder="new username" required
+                               value="<?= e($_POST['new_username'] ?? $current_user['username']) ?>">
+                        <button type="submit">save</button>
+                        <a href="account.php" class="cancel-link">cancel</a>
+                    </form>
+                </div>
+            <?php endif; ?>
+
+            <?php if ($show_change_email): ?>
+                <div class="modal-form">
+                    <h3>change email</h3>
+                    <form method="POST" action="account.php">
+                        <?= csrf_input() ?>
+                        <input type="hidden" name="action" value="change_email">
+                        <input type="email" name="new_email" placeholder="new email address" required
+                               value="<?= e($_POST['new_email'] ?? '') ?>">
+                        <button type="submit">save</button>
+                        <a href="account.php" class="cancel-link">cancel</a>
+                    </form>
+                </div>
+            <?php endif; ?>
+
+            <!-- Summary Section -->
+            <div class="section">
+                <div class="section-header">summary</div>
+                <table class="section-table">
+                    <tr>
+                        <td class="label">username:</td>
+                        <td class="value"><?= e($current_user['username']) ?></td>
+                        <td class="action">
+                            <form method="POST" action="account.php" style="display:inline;">
+                                <?= csrf_input() ?>
+                                <input type="hidden" name="action" value="show_change_username">
+                                <button type="submit">change</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="label">email:</td>
+                        <td class="value"><?= e($masked) ?></td>
+                        <td class="action">
+                            <form method="POST" action="account.php" style="display:inline;">
+                                <?= csrf_input() ?>
+                                <input type="hidden" name="action" value="show_change_email">
+                                <button type="submit">change</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="label">status:</td>
+                        <td class="value">
+                            <span class="status-text" style="color: <?= $status_color ?>"><?= e($current_user['status_display']) ?></span>
+                        </td>
+                        <td class="action">
+                            <form method="POST" action="account.php" style="display:inline;">
+                                <?= csrf_input() ?>
+                                <input type="hidden" name="action" value="show_close_account">
+                                <button type="submit">close my account</button>
+                            </form>
+                        </td>
+                    </tr>
+                </table>
             </div>
+
+            <!-- Subscription Section -->
+            <div class="section">
+                <div class="section-header">subscription</div>
+                <table class="section-table">
+                    <tr>
+                        <td class="label">registration:</td>
+                        <td class="value"><?= e($reg_formatted) ?> (<?= e($reg_ago) ?>)</td>
+                        <td class="action"></td>
+                    </tr>
+                    <tr>
+                        <td class="label">expiry:</td>
+                        <td class="value">
+                            <?= e($expires_formatted) ?>
+                            <span class="countdown">(<?= e($countdown) ?>)</span>
+                        </td>
+                        <td class="action">
+                            <button type="button" disabled style="opacity:0.5;">subscribe</button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Security Section -->
+            <div class="section">
+                <div class="section-header">security</div>
+                <table class="section-table">
+                    <tr>
+                        <td class="label">password:</td>
+                        <td class="value"><?= e($password_status) ?></td>
+                        <td class="action">
+                            <a href="reset_password.php">set password</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="label">two factor:</td>
+                        <td class="value">please allow 5 mins once enabled</td>
+                        <td class="action">
+                            <button type="button" disabled style="opacity:0.5;">enable 2fa</button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
         <?php endif; ?>
-
-        <!-- Summary Section -->
-        <div class="section">
-            <div class="section-header">summary</div>
-            <table class="section-table">
-                <tr>
-                    <td class="label">username:</td>
-                    <td class="value"><?= e($current_user['username']) ?></td>
-                    <td class="action">
-                        <form method="POST" action="account.php" style="display:inline;">
-                            <?= csrf_input() ?>
-                            <input type="hidden" name="action" value="show_change_username">
-                            <button type="submit">change</button>
-                        </form>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="label">email:</td>
-                    <td class="value"><?= e($masked) ?></td>
-                    <td class="action">
-                        <form method="POST" action="account.php" style="display:inline;">
-                            <?= csrf_input() ?>
-                            <input type="hidden" name="action" value="show_change_email">
-                            <button type="submit">change</button>
-                        </form>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="label">status:</td>
-                    <td class="value">
-                        <span class="status-text" style="color: <?= $status_color ?>"><?= e($current_user['status_display']) ?></span>
-                    </td>
-                    <td class="action">
-                        <form method="POST" action="account.php" style="display:inline;">
-                            <?= csrf_input() ?>
-                            <input type="hidden" name="action" value="show_close_account">
-                            <button type="submit">close my account</button>
-                        </form>
-                    </td>
-                </tr>
-            </table>
-        </div>
-
-        <!-- Subscription Section -->
-        <div class="section">
-            <div class="section-header">subscription</div>
-            <table class="section-table">
-                <tr>
-                    <td class="label">registration:</td>
-                    <td class="value"><?= e($reg_formatted) ?> (<?= e($reg_ago) ?>)</td>
-                    <td class="action"></td>
-                </tr>
-                <tr>
-                    <td class="label">expiry:</td>
-                    <td class="value">
-                        <?= e($expires_formatted) ?>
-                        <span class="countdown">(<?= e($countdown) ?>)</span>
-                    </td>
-                    <td class="action">
-                        <button type="button" disabled style="opacity:0.5;">subscribe</button>
-                    </td>
-                </tr>
-            </table>
-        </div>
-
-        <!-- Security Section -->
-        <div class="section">
-            <div class="section-header">security</div>
-            <table class="section-table">
-                <tr>
-                    <td class="label">password:</td>
-                    <td class="value"><?= e($password_status) ?></td>
-                    <td class="action">
-                        <a href="reset_password.php">set password</a>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="label">two factor:</td>
-                    <td class="value">please allow 5 mins once enabled</td>
-                    <td class="action">
-                        <button type="button" disabled style="opacity:0.5;">enable 2fa</button>
-                    </td>
-                </tr>
-            </table>
-        </div>
     </div>
 
+<script>
+document.addEventListener('click', function(e) {
+    var dd = document.querySelector('.user-dropdown');
+    if (dd && !e.target.closest('.nav-user-wrapper')) {
+        dd.classList.remove('open');
+    }
+});
+</script>
 </body>
 </html>

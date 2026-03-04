@@ -59,14 +59,6 @@ $expires_formatted = format_date($current_user['expires_at']) . ' UTC';
             justify-content: space-between;
         }
         .navbar-logo img { height: 45px; }
-        .navbar-search {
-            display: flex; align-items: center; gap: 6px;
-        }
-        .navbar-search select, .navbar-search input, .navbar-search button {
-            background: #333; color: #fff; border: 1px solid #444;
-            padding: 6px 10px; font-size: 14px; border-radius: 2px;
-        }
-        .navbar-search input { color: #fff; width: 200px; }
         .navbar-secondary {
             background: #0d5f78;
             padding: 6px 20px;
@@ -75,25 +67,15 @@ $expires_formatted = format_date($current_user['expires_at']) . ' UTC';
             justify-content: space-between;
             font-size: 15px;
         }
-        .nav-left {
-            display: flex; align-items: center; gap: 14px;
-        }
-        .nav-username {
-            color: #fff; font-weight: bold; font-size: 15px;
-        }
+        .nav-left { display: flex; align-items: center; gap: 14px; }
+        .nav-username { color: #fff; font-weight: bold; font-size: 15px; }
         .nav-icons { display: flex; gap: 12px; }
         .nav-icons a { color: #fff; font-size: 16px; }
-        .nav-icons a.icon-mail { color: #ffcc00; }
         .nav-right { display: flex; gap: 18px; }
         .nav-right a { color: #fff; font-size: 15px; }
         .bg-content {
-            max-width: 1280px; margin: 0 auto; padding: 0 20px;
+            max-width: 1280px; margin: 0 auto; padding: 30px 20px 0;
         }
-        .search-bar {
-            border: 1px solid #555; padding: 12px 20px; margin: 20px auto;
-            text-align: center; color: #ccc; font-size: 15px; border-radius: 3px;
-        }
-        .search-bar .fa-magnifying-glass { color: #fff; margin: 0 6px; }
         .card-orange {
             border: 2px solid #ff6600; background: #2a2a2a;
             border-radius: 4px; padding: 20px 28px; margin-bottom: 24px;
@@ -103,7 +85,6 @@ $expires_formatted = format_date($current_user['expires_at']) . ' UTC';
         }
         .card-orange-header .icon { color: #ff6600; font-size: 28px; }
         .card-orange-header h3 { color: #ff6600; font-size: 18px; margin: 0; }
-        .card-orange-header .msg-text { color: #fff; font-size: 15px; font-weight: bold; }
         .card-orange p { color: #888; font-size: 15px; line-height: 1.7; margin-top: 8px; }
         .card-orange ul { color: #888; font-size: 15px; padding-left: 24px; margin: 10px 0; line-height: 1.8; }
         .card-orange a { color: #ff6600; font-weight: bold; }
@@ -186,13 +167,6 @@ $expires_formatted = format_date($current_user['expires_at']) . ' UTC';
             </div>
         </div>
         <div class="bg-content">
-            <div class="search-bar">geekseek <i class="fas fa-magnifying-glass"></i> Search</div>
-            <div class="card-orange">
-                <div class="card-orange-header">
-                    <span class="icon"><i class="fas fa-envelope"></i></span>
-                    <span class="msg-text">You have 1 new message</span>
-                </div>
-            </div>
             <div class="card-orange">
                 <div class="card-orange-header">
                     <span class="icon"><i class="fas fa-bullhorn"></i></span>

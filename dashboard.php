@@ -93,6 +93,9 @@ $is_trial = $current_user['status_name'] === 'active_trial';
             align-items: center;
             gap: 14px;
         }
+        .nav-user-wrapper {
+            position: relative;
+        }
         .nav-username {
             color: #fff;
             font-weight: bold;
@@ -102,6 +105,37 @@ $is_trial = $current_user['status_name'] === 'active_trial';
         .nav-username .fa-caret-down {
             font-size: 11px;
             margin-left: 3px;
+        }
+        .user-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            margin-top: 6px;
+            background: #1a1a1a;
+            border: 1px solid #444;
+            border-radius: 3px;
+            min-width: 160px;
+            z-index: 999;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        }
+        .user-dropdown.open {
+            display: block;
+        }
+        .user-dropdown a {
+            display: block;
+            padding: 10px 16px;
+            color: #ccc;
+            font-size: 14px;
+            font-weight: normal;
+            transition: background 0.15s;
+        }
+        .user-dropdown a:hover {
+            background: #333;
+            color: #fff;
+        }
+        .user-dropdown a + a {
+            border-top: 1px solid #333;
         }
         .nav-icons {
             display: flex;
@@ -237,9 +271,15 @@ $is_trial = $current_user['status_name'] === 'active_trial';
     <!-- Secondary Navbar -->
     <div class="navbar-secondary">
         <div class="nav-left">
-            <span class="nav-username">
-                <?= e($current_user['username']) ?> <i class="fas fa-caret-down"></i>
-            </span>
+            <div class="nav-user-wrapper">
+                <span class="nav-username" onclick="document.querySelector('.user-dropdown').classList.toggle('open')">
+                    <?= e($current_user['username']) ?> <i class="fas fa-caret-down"></i>
+                </span>
+                <div class="user-dropdown">
+                    <a href="account.php"><i class="fas fa-user"></i>&nbsp; my account</a>
+                    <a href="logout.php"><i class="fas fa-power-off"></i>&nbsp; logout</a>
+                </div>
+            </div>
             <div class="nav-icons">
                 <a href="dashboard.php" title="Home"><i class="fas fa-home"></i></a>
                 <a href="logout.php" title="Logout"><i class="fas fa-power-off"></i></a>
@@ -292,5 +332,13 @@ $is_trial = $current_user['status_name'] === 'active_trial';
         </div>
     </div>
 
+<script>
+document.addEventListener('click', function(e) {
+    var dd = document.querySelector('.user-dropdown');
+    if (dd && !e.target.closest('.nav-user-wrapper')) {
+        dd.classList.remove('open');
+    }
+});
+</script>
 </body>
 </html>
