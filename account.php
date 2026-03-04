@@ -268,7 +268,7 @@ elseif ($current_user['status_name'] === 'expired') $status_color = '#ff4444';
             color: #ff6600;
             font-size: 16px;
             font-weight: bold;
-            font-style: italic;
+            font-style: normal;
             padding-bottom: 6px;
             border-bottom: 1px solid #ff6600;
             margin-bottom: 0;
@@ -323,7 +323,7 @@ elseif ($current_user['status_name'] === 'expired') $status_color = '#ff4444';
         .countdown {
             color: #ff6600;
             font-weight: bold;
-            font-style: italic;
+            font-style: normal;
         }
 
         /* Modal-style forms */
