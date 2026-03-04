@@ -232,19 +232,6 @@ $is_trial = $current_user['status_name'] === 'active_trial';
         <div class="navbar-logo">
             <a href="dashboard.php"><img src="assets/nzbgeek.png" alt="<?= e(SITE_NAME) ?>"></a>
         </div>
-        <div class="navbar-search">
-            <select>
-                <option>All</option>
-                <option>Movies</option>
-                <option>Tv</option>
-                <option>Games</option>
-                <option>Audio</option>
-                <option>Books</option>
-                <option>Pc</option>
-            </select>
-            <input type="text" placeholder="Basic search">
-            <button type="button">Search</button>
-        </div>
     </div>
 
     <!-- Secondary Navbar -->
@@ -255,8 +242,6 @@ $is_trial = $current_user['status_name'] === 'active_trial';
             </span>
             <div class="nav-icons">
                 <a href="dashboard.php" title="Home"><i class="fas fa-home"></i></a>
-                <a href="#" title="Notifications"><i class="fas fa-bullhorn"></i></a>
-                <a href="#" title="Messages" class="icon-mail"><i class="fas fa-envelope"></i></a>
                 <a href="logout.php" title="Logout"><i class="fas fa-power-off"></i></a>
             </div>
         </div>
@@ -270,20 +255,7 @@ $is_trial = $current_user['status_name'] === 'active_trial';
         </div>
     </div>
 
-    <!-- Search Bar -->
     <div class="content">
-        <div class="search-bar">
-            geekseek <i class="fas fa-magnifying-glass"></i> Search
-        </div>
-
-        <!-- Message Notification -->
-        <div class="card-orange">
-            <div class="card-orange-header">
-                <span class="icon"><i class="fas fa-envelope"></i></span>
-                <span class="msg-text">You have 1 new message</span>
-            </div>
-        </div>
-
         <!-- Trial / Membership Info -->
         <div class="card-orange">
             <div class="card-orange-header">

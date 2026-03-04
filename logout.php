@@ -167,19 +167,12 @@ $expires_formatted = format_date($current_user['expires_at']) . ' UTC';
     <div class="dashboard-bg">
         <div class="navbar-top">
             <div class="navbar-logo"><img src="assets/nzbgeek.png" alt="<?= e(SITE_NAME) ?>"></div>
-            <div class="navbar-search">
-                <select><option>all</option></select>
-                <input type="text" placeholder="Basic search">
-                <button>Search</button>
-            </div>
         </div>
         <div class="navbar-secondary">
             <div class="nav-left">
                 <span class="nav-username"><?= e($current_user['username']) ?> <i class="fas fa-caret-down"></i></span>
                 <div class="nav-icons">
                     <a href="#"><i class="fas fa-home"></i></a>
-                    <a href="#"><i class="fas fa-bullhorn"></i></a>
-                    <a href="#" class="icon-mail"><i class="fas fa-envelope"></i></a>
                     <a href="#"><i class="fas fa-power-off"></i></a>
                 </div>
             </div>
