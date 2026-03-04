@@ -160,7 +160,7 @@ $is_trial = $current_user['status_name'] === 'active_trial';
         .content {
             max-width: 1280px;
             margin: 0 auto;
-            padding: 0 20px 40px;
+            padding: 30px 20px 40px;
         }
 
         /* Orange-bordered cards */
