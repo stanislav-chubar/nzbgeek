@@ -37,14 +37,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if ($step === 2) {
+            // Verify Turnstile CAPTCHA
+            $turnstile_token = $_POST['cf-turnstile-response'] ?? '';
+            if (TURNSTILE_SITE_KEY !== '' && !verify_turnstile($turnstile_token)) {
+                $error = 'CAPTCHA verification failed. Please try again.';
+            }
+
             $username = trim($_POST['username'] ?? '');
             $email = trim($_POST['email'] ?? '');
 
-            if ($username === '') {
+            if (!$error && $username === '') {
                 $error = 'Username is required.';
-            } elseif (strlen($username) < 3 || strlen($username) > 50) {
+            } elseif (!$error && (strlen($username) < 3 || strlen($username) > 50)) {
                 $error = 'Username must be between 3 and 50 characters.';
-            } elseif (!preg_match('/^[a-zA-Z0-9_]+$/', $username)) {
+            } elseif (!$error && !preg_match('/^[a-zA-Z0-9_]+$/', $username)) {
                 $error = 'Username can only contain letters, numbers, and underscores.';
             }
 
@@ -77,13 +83,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $expires = clone $now;
                     $expires->modify('+' . TRIAL_HOURS . ' hours');
 
+                    $register_ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '';
+                    if (strpos($register_ip, ',') !== false) $register_ip = trim(explode(',', $register_ip)[0]);
+
                     $insert = $db->prepare('
-                        INSERT INTO users (username, email, password_hash, is_using_generated_password, status_id, registered_at, expires_at)
-                        VALUES (?, ?, ?, 1, ?, ?, ?)
+                        INSERT INTO users (username, email, password_hash, is_using_generated_password, status_id, registered_at, expires_at, register_ip)
+                        VALUES (?, ?, ?, 1, ?, ?, ?, ?)
                     ');
                     $insert->execute([
                         $username, $email, $password_hash, $status_id,
                         $now->format('Y-m-d H:i:s'), $expires->format('Y-m-d H:i:s'),
+                        $register_ip,
                     ]);
                 }
 
@@ -119,8 +129,10 @@ if ($step === 3) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - <?= e(SITE_NAME) ?></title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        .cf-turnstile { display: flex; justify-content: center; margin-bottom: 10px; }
         body {
             background: #3e3e3e;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -356,6 +368,9 @@ if ($step === 3) {
                         <input type="email" name="email" placeholder="email address" required
                                value="<?= e($_POST['email'] ?? '') ?>">
                     </div>
+                    <?php if (TURNSTILE_SITE_KEY): ?>
+                        <div class="cf-turnstile" data-sitekey="<?= e(TURNSTILE_SITE_KEY) ?>" data-theme="dark"></div>
+                    <?php endif; ?>
                     <button type="submit" class="btn">register</button>
                 </form>
 

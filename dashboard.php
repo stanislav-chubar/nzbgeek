@@ -277,6 +277,7 @@ $is_trial = $current_user['status_name'] === 'active_trial';
                 </span>
                 <div class="user-dropdown">
                     <a href="account.php"><i class="fas fa-user"></i>&nbsp; my account</a>
+                    <a href="subscribe.php"><i class="fas fa-credit-card"></i>&nbsp; subscribe</a>
                     <a href="logout.php"><i class="fas fa-power-off"></i>&nbsp; logout</a>
                 </div>
             </div>

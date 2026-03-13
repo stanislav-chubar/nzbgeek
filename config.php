@@ -28,6 +28,8 @@ define('DB_CHARSET', $_ENV['DB_CHARSET']);
 define('SENDGRID_API_KEY', $_ENV['SENDGRID_API_KEY']);
 define('SENDGRID_FROM_EMAIL', $_ENV['SENDGRID_FROM_EMAIL']);
 define('SENDGRID_FROM_NAME', $_ENV['SENDGRID_FROM_NAME']);
+define('TURNSTILE_SITE_KEY', $_ENV['TURNSTILE_SITE_KEY'] ?? '');
+define('TURNSTILE_SECRET_KEY', $_ENV['TURNSTILE_SECRET_KEY'] ?? '');
 
 // --- Site Configuration ---
 define('SITE_NAME', 'MPass');
@@ -106,6 +108,27 @@ function render_flash(): string {
     if (!$flash) return '';
     $type = $flash['type'] === 'error' ? 'flash-error' : 'flash-success';
     return '<div class="flash ' . $type . '">' . e($flash['message']) . '</div>';
+}
+
+// --- Cloudflare Turnstile Verification ---
+function verify_turnstile(string $token): bool {
+    if (TURNSTILE_SECRET_KEY === '') return true; // Skip if not configured
+    $ch = curl_init('https://challenges.cloudflare.com/turnstile/v0/siteverify');
+    curl_setopt_array($ch, [
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => http_build_query([
+            'secret' => TURNSTILE_SECRET_KEY,
+            'response' => $token,
+            'remoteip' => $_SERVER['REMOTE_ADDR'] ?? '',
+        ]),
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 10,
+    ]);
+    $response = curl_exec($ch);
+    curl_close($ch);
+    if (!$response) return false;
+    $result = json_decode($response, true);
+    return $result['success'] ?? false;
 }
 
 // --- Output Escaping Helper ---

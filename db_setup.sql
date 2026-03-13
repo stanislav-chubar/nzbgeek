@@ -31,6 +31,9 @@ CREATE TABLE IF NOT EXISTS users (
     status_id INT UNSIGNED NOT NULL,
     registered_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     expires_at DATETIME NOT NULL,
+    register_ip VARCHAR(45) DEFAULT NULL,
+    last_ip VARCHAR(45) DEFAULT NULL,
+    lastlogin_at DATETIME DEFAULT NULL,
     two_factor_secret VARCHAR(255) DEFAULT NULL,
     two_factor_enabled TINYINT(1) NOT NULL DEFAULT 0,
     account_close_token VARCHAR(255) DEFAULT NULL,
@@ -45,3 +48,8 @@ CREATE TABLE IF NOT EXISTS users (
     INDEX idx_status (status_id),
     INDEX idx_expires (expires_at)
 ) ENGINE=InnoDB;
+
+-- Migration: Add new columns to existing users table (run if table already exists)
+-- ALTER TABLE users ADD COLUMN register_ip VARCHAR(45) DEFAULT NULL AFTER expires_at;
+-- ALTER TABLE users ADD COLUMN last_ip VARCHAR(45) DEFAULT NULL AFTER register_ip;
+-- ALTER TABLE users ADD COLUMN lastlogin_at DATETIME DEFAULT NULL AFTER last_ip;

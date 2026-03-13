@@ -1,46 +1,21 @@
 <?php
 /**
- * MPass - Set Personal Password (Protected)
+ * MPass - Subscribe Page
  */
-
 require_once __DIR__ . '/auth.php';
 
-$error = '';
-$success = '';
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!verify_csrf_token($_POST['csrf_token'] ?? '')) {
-        $error = 'Invalid request. Please try again.';
-    } else {
-        $new_password = $_POST['new_password'] ?? '';
-        $confirm_password = $_POST['confirm_password'] ?? '';
-
-        if (strlen($new_password) < 8) {
-            $error = 'Password must be at least 8 characters long.';
-        } elseif ($new_password !== $confirm_password) {
-            $error = 'Passwords do not match.';
-        } else {
-            $hash = password_hash($new_password, PASSWORD_BCRYPT);
-
-            $db = get_db();
-            $update = $db->prepare('
-                UPDATE users SET password_hash = ?, is_using_generated_password = 0 WHERE id = ?
-            ');
-            $update->execute([$hash, $current_user['id']]);
-
-            set_flash('success', 'Your personal password has been set successfully.');
-            header('Location: account.php');
-            exit;
-        }
-    }
-}
+$now = new DateTime('now', new DateTimeZone('UTC'));
+$expires = new DateTime($current_user['expires_at'], new DateTimeZone('UTC'));
+$is_expired = $expires <= $now;
+$countdown = $is_expired ? 'expired' : countdown_to($current_user['expires_at']);
+$expires_formatted = format_date($current_user['expires_at']) . ' UTC';
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Set Password - <?= e(SITE_NAME) ?></title>
+    <title>Subscribe - <?= e(SITE_NAME) ?></title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -74,9 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         .nav-left { display: flex; align-items: center; gap: 14px; }
         .nav-user-wrapper { position: relative; }
-        .nav-username {
-            color: #fff; font-weight: bold; font-size: 15px; cursor: pointer;
-        }
+        .nav-username { color: #fff; font-weight: bold; font-size: 15px; cursor: pointer; }
         .nav-username .fa-caret-down { font-size: 11px; margin-left: 3px; }
         .user-dropdown {
             display: none;
@@ -110,79 +83,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .nav-right a:hover { color: #cce; }
         .nav-right .fa-caret-down { font-size: 10px; margin-left: 2px; }
 
+        /* Content */
         .content {
-            max-width: 500px;
-            margin: 60px auto;
-            padding: 0 20px;
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 30px 20px 40px;
         }
-        .password-card {
-            background: #1e1e1e;
-            border: 1px solid #555;
+
+        /* Orange-bordered cards */
+        .card-orange {
+            border: 2px solid #ff6600;
+            background: #2a2a2a;
             border-radius: 4px;
-            padding: 35px 40px;
-            text-align: center;
+            padding: 20px 28px;
+            margin-bottom: 24px;
         }
-        .password-card h2 {
-            color: #ff6600;
-            font-size: 16px;
-            font-weight: bold;
-            margin-bottom: 25px;
-            text-transform: lowercase;
+        .card-orange-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 4px;
         }
-        .flash {
-            padding: 10px 15px;
-            border-radius: 4px;
-            margin-bottom: 20px;
-            font-size: 14px;
-            text-align: left;
-        }
-        .flash-error {
-            background: rgba(255, 0, 0, 0.15);
-            border: 1px solid #ff4444;
-            color: #ff6666;
-        }
-        .form-group {
-            margin-bottom: 16px;
-            text-align: left;
-        }
-        .form-group label {
-            display: block;
-            color: #999;
-            font-size: 14px;
-            margin-bottom: 6px;
-        }
-        .form-group input {
-            width: 100%;
-            background: #444;
-            border: 1px solid #666;
-            color: #fff;
-            padding: 10px 14px;
-            font-size: 15px;
-            border-radius: 2px;
-            outline: none;
-        }
-        .form-group input::placeholder { color: #888; }
-        .form-group input:focus { border-color: #00bfff; }
-        .btn {
-            background: transparent;
-            border: 1px solid #888;
-            color: #fff;
-            padding: 10px 40px;
-            cursor: pointer;
-            font-size: 15px;
-            text-transform: lowercase;
-            border-radius: 3px;
-            margin-top: 10px;
-            transition: background 0.2s;
-        }
-        .btn:hover { background: rgba(255,255,255,0.05); }
-        .cancel-link {
-            display: block;
-            margin-top: 15px;
-            color: #888;
-            font-size: 14px;
-        }
-        .cancel-link:hover { color: #ccc; }
+        .card-orange-header .icon { color: #ff6600; font-size: 28px; }
+        .card-orange-header h3 { color: #ff6600; font-size: 18px; font-weight: bold; margin: 0; }
+        .card-orange p { color: #888; font-size: 15px; line-height: 1.7; margin-top: 8px; }
+        .card-orange a { color: #ff6600; font-weight: bold; }
+        .card-orange a:hover { color: #ff8833; }
     </style>
 </head>
 <body>
@@ -222,29 +148,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 
-    <!-- Content -->
     <div class="content">
-        <div class="password-card">
-            <h2>set password</h2>
-
-            <?php if ($error): ?>
-                <div class="flash flash-error"><?= e($error) ?></div>
-            <?php endif; ?>
-
-            <form method="POST" action="reset_password.php">
-                <?= csrf_input() ?>
-                <div class="form-group">
-                    <label>new password</label>
-                    <input type="password" name="new_password" placeholder="minimum 8 characters" required>
-                </div>
-                <div class="form-group">
-                    <label>confirm password</label>
-                    <input type="password" name="confirm_password" placeholder="retype password" required>
-                </div>
-                <button type="submit" class="btn">set password</button>
-            </form>
-
-            <a href="account.php" class="cancel-link">back to my account</a>
+        <div class="card-orange">
+            <div class="card-orange-header">
+                <span class="icon"><i class="fas fa-credit-card"></i></span>
+                <h3>Subscribe</h3>
+            </div>
+            <p>Subscription options will be available here soon.</p>
+            <p>Your current membership expires on <?= e($expires_formatted) ?>
+                <span style="color:#ff6600; font-weight:bold;">(<?= e($countdown) ?>)</span>
+            </p>
         </div>
     </div>
 

@@ -159,6 +159,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .btn:hover {
             background: rgba(255, 255, 255, 0.05);
         }
+        a.btn {
+            color: #fff;
+            display: inline-block;
+        }
         .help-text {
             color: #888;
             font-size: 14px;
@@ -183,15 +187,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="flash flash-success"><?= e($success) ?></div>
             <?php endif; ?>
 
-            <form method="POST" action="recover.php">
-                <?= csrf_input() ?>
-                <div class="input-row">
-                    <span class="icon"><i class="fas fa-user"></i></span>
-                    <input type="text" name="username" placeholder="user name" required autofocus
-                           value="<?= e($_POST['username'] ?? '') ?>">
-                </div>
-                <button type="submit" class="btn">recover</button>
-            </form>
+            <?php if ($success): ?>
+                <a href="login.php" class="btn">login</a>
+            <?php else: ?>
+                <form method="POST" action="recover.php">
+                    <?= csrf_input() ?>
+                    <div class="input-row">
+                        <span class="icon"><i class="fas fa-user"></i></span>
+                        <input type="text" name="username" placeholder="user name" required autofocus
+                               value="<?= e($_POST['username'] ?? '') ?>">
+                    </div>
+                    <button type="submit" class="btn">recover</button>
+                </form>
+            <?php endif; ?>
 
             <p class="help-text">
                 add <?= e(parse_url(SITE_URL, PHP_URL_HOST) ?: 'mpass.id') ?> to allowed senders, check spam

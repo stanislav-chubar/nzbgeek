@@ -5,12 +5,15 @@
 
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/sendgrid.php';
+require_once __DIR__ . '/totp.php';
 
 $error = '';
 $success = '';
 $show_change_username = false;
 $show_change_email = false;
 $show_close_account = false;
+$show_enable_2fa = false;
+$totp_secret_temp = '';
 
 if (isset($_GET['action']) && $_GET['action'] === 'confirm_close' && isset($_GET['token'])) {
     $token = $_GET['token'];
@@ -84,10 +87,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $error = 'Please enter a valid email address.';
                 } else {
                     $db = get_db();
-                    $update = $db->prepare('UPDATE users SET email = ? WHERE id = ?');
-                    $update->execute([$new_email, $current_user['id']]);
-                    $current_user['email'] = $new_email;
-                    $success = 'Email updated successfully.';
+                    $check = $db->prepare('SELECT id FROM users WHERE email = ? AND id != ?');
+                    $check->execute([$new_email, $current_user['id']]);
+                    if ($check->fetch()) {
+                        $error = 'This email address is already in use.';
+                    } else {
+                        $update = $db->prepare('UPDATE users SET email = ? WHERE id = ?');
+                        $update->execute([$new_email, $current_user['id']]);
+                        $current_user['email'] = $new_email;
+                        $success = 'Email updated successfully.';
+                    }
                 }
                 if ($error) $show_change_email = true;
                 break;
@@ -121,6 +130,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             case 'show_close_account':
                 $show_close_account = true;
+                break;
+
+            case 'show_enable_2fa':
+                $show_enable_2fa = true;
+                $totp_secret_temp = totp_generate_secret();
+                $_SESSION['totp_setup_secret'] = $totp_secret_temp;
+                break;
+
+            case 'confirm_enable_2fa':
+                $code = trim($_POST['totp_code'] ?? '');
+                $secret = $_SESSION['totp_setup_secret'] ?? '';
+                if ($secret === '' || $code === '') {
+                    $error = 'Please enter the 6-digit code from your authenticator app.';
+                    $show_enable_2fa = true;
+                    $totp_secret_temp = $secret;
+                } elseif (!totp_verify($secret, $code)) {
+                    $error = 'Invalid code. Please check the code in your authenticator app and try again.';
+                    $show_enable_2fa = true;
+                    $totp_secret_temp = $secret;
+                } else {
+                    $db = get_db();
+                    $update = $db->prepare('UPDATE users SET two_factor_secret = ?, two_factor_enabled = 1 WHERE id = ?');
+                    $update->execute([$secret, $current_user['id']]);
+                    $current_user['two_factor_enabled'] = 1;
+                    unset($_SESSION['totp_setup_secret']);
+                    $success = 'Two-factor authentication has been enabled successfully.';
+                }
+                break;
+
+            case 'disable_2fa':
+                $db = get_db();
+                $update = $db->prepare('UPDATE users SET two_factor_secret = NULL, two_factor_enabled = 0 WHERE id = ?');
+                $update->execute([$current_user['id']]);
+                $current_user['two_factor_enabled'] = 0;
+                $success = 'Two-factor authentication has been disabled.';
                 break;
         }
     }
@@ -427,6 +471,7 @@ elseif ($current_user['status_name'] === 'expired') $status_color = '#ff4444';
                 </span>
                 <div class="user-dropdown">
                     <a href="account.php"><i class="fas fa-user"></i>&nbsp; my account</a>
+                    <a href="subscribe.php"><i class="fas fa-credit-card"></i>&nbsp; subscribe</a>
                     <a href="logout.php"><i class="fas fa-power-off"></i>&nbsp; logout</a>
                 </div>
             </div>
@@ -506,6 +551,33 @@ elseif ($current_user['status_name'] === 'expired') $status_color = '#ff4444';
                 </div>
             <?php endif; ?>
 
+            <?php if ($show_enable_2fa && $totp_secret_temp): ?>
+                <div class="modal-form" style="text-align:center;">
+                    <h3>enable two-factor authentication</h3>
+                    <p style="color:#999; font-size:14px; margin-bottom:16px;">
+                        Scan the QR code below with your authenticator app<br>
+                        (Google Authenticator, Authy, etc.)
+                    </p>
+                    <div style="margin-bottom:16px;">
+                        <img src="<?= e(totp_get_qr_url($current_user['username'], $totp_secret_temp)) ?>" alt="QR Code" style="border:4px solid #fff; border-radius:4px;">
+                    </div>
+                    <p style="color:#999; font-size:13px; margin-bottom:16px;">
+                        Or enter this secret manually: <br>
+                        <code style="color:#00bfff; font-size:14px; letter-spacing:2px;"><?= e($totp_secret_temp) ?></code>
+                    </p>
+                    <form method="POST" action="account.php">
+                        <?= csrf_input() ?>
+                        <input type="hidden" name="action" value="confirm_enable_2fa">
+                        <input type="text" name="totp_code" placeholder="enter 6-digit code" required
+                               maxlength="6" pattern="[0-9]{6}" autocomplete="off"
+                               style="background:#444; border:1px solid #666; color:#fff; padding:10px 14px; font-size:18px; border-radius:2px; width:200px; text-align:center; outline:none; margin-bottom:12px; letter-spacing:4px;">
+                        <br>
+                        <button type="submit">verify & enable</button>
+                        <a href="account.php" class="cancel-link">cancel</a>
+                    </form>
+                </div>
+            <?php endif; ?>
+
             <!-- Summary Section -->
             <div class="section">
                 <div class="section-header">summary</div>
@@ -564,7 +636,7 @@ elseif ($current_user['status_name'] === 'expired') $status_color = '#ff4444';
                             <span class="countdown">(<?= e($countdown) ?>)</span>
                         </td>
                         <td class="action">
-                            <button type="button" disabled style="opacity:0.5;">subscribe</button>
+                            <a href="subscribe.php">subscribe</a>
                         </td>
                     </tr>
                 </table>
@@ -583,9 +655,27 @@ elseif ($current_user['status_name'] === 'expired') $status_color = '#ff4444';
                     </tr>
                     <tr>
                         <td class="label">two factor:</td>
-                        <td class="value">please allow 5 mins once enabled</td>
+                        <td class="value">
+                            <?php if ($current_user['two_factor_enabled']): ?>
+                                <span style="color: #00cc44; font-weight: bold;">enabled</span>
+                            <?php else: ?>
+                                please allow 5 mins once enabled
+                            <?php endif; ?>
+                        </td>
                         <td class="action">
-                            <button type="button" disabled style="opacity:0.5;">enable 2fa</button>
+                            <?php if ($current_user['two_factor_enabled']): ?>
+                                <form method="POST" action="account.php" style="display:inline;">
+                                    <?= csrf_input() ?>
+                                    <input type="hidden" name="action" value="disable_2fa">
+                                    <button type="submit">disable 2fa</button>
+                                </form>
+                            <?php else: ?>
+                                <form method="POST" action="account.php" style="display:inline;">
+                                    <?= csrf_input() ?>
+                                    <input type="hidden" name="action" value="show_enable_2fa">
+                                    <button type="submit">enable 2fa</button>
+                                </form>
+                            <?php endif; ?>
                         </td>
                     </tr>
                 </table>
